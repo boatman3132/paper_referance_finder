@@ -1,0 +1,155 @@
+/* 設定整個網頁的基礎樣式，營造學術氛圍 */
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    line-height: 1.6;
+}
+
+h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+textarea {
+    width: 80%;
+    height: 200px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#charCount {
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+button {
+    padding: 10px 25px;
+    font-size: 1.2em;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    background-color: #003f7d;
+}
+
+#output {
+    width: 80%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fafafa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.subheader {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #0056b3;
+    border-bottom: 2px solid #0056b3;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.output-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.output-column {
+    width: 48%;
+    font-family: 'Courier New', monospace;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.reference-item {
+    display: block;
+    margin: 5px 0;
+    padding-left: 10px;
+    position: relative;
+}
+
+
+
+.highlight-red {
+    background-color: #d9534f;
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.reference-container {
+    line-height: 1.8;
+    font-size: 0.95em;
+}
+
+/* 控制顯示和隱藏的過渡效果，讓網頁看起來更流暢 */
+.output-section {
+    display: none;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.output-section.visible {
+    display: block;
+    opacity: 1;
+}
+
+/* 增加適合不同裝置的響應式設計 */
+@media (max-width: 768px) {
+    textarea {
+        width: 100%;
+    }
+    #output {
+        width: 100%;
+    }
+    .output-columns {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .output-column {
+        width: 100%;
+    }
+    button {
+        font-size: 1em;
+        padding: 8px 20px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+}

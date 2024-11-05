@@ -4,91 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>論文引用查找工具</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        textarea {
-            width: 80%;
-            height: 200px;
-            margin-bottom: 10px;
-        }
-        #output {
-            width: 80%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-            white-space: pre-line;
-            margin-top: 20px;
-        }
-        .output-columns {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        .output-column {
-            width: 45%;
-            font-family: monospace;
-        }
-        #charCount {
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-        .highlight-red {
-            background-color: red;
-            color: white;
-            padding: 2px;
-            border-radius: 3px;
-        }
-        .reference-item {
-            display: block;
-            margin: 0;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        .subheader {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .reference-container {
-            font-family: monospace;
-            line-height: 1.6;
-        }
-        /* 隱藏初始狀態的區域 */
-        .output-section {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css"> <!-- 引入新 CSS -->
 </head>
 <body>
     <h1>引用查找工具</h1>
     <textarea id="inputText" placeholder="請在此輸入論文內文"></textarea>
     <div id="charCount">字元數：0，字數：0</div>
-    <button onclick="convertBracketsAndFindReferences()">查找論文內文引用</button>
+    <button onclick="convertBracketsAndFindReferences()">查找引用</button>
+    
     <div id="output">
         <div class="header" id="summaryHeader"></div>
         <div class="output-columns">
             <div class="output-column output-section" id="sortedSection">
-                <div class="subheader">按字母順序：<br><br><br><br><br></div>
+                <div class="subheader">按字母順序：</div>
                 <div id="sortedOutput" class="reference-container"></div>
             </div>
             <div class="output-column output-section" id="originalSection">
                 <div class="subheader">按原文順序：</div>
                 <div class="reference-container">
-                    <div>出現次數 &nbsp;引用文獻</div>
                     <div id="originalOrderOutput"></div>
                 </div>
             </div>
@@ -110,8 +43,8 @@
 
         function convertBracketsAndFindReferences() {
             // 顯示「按字母順序」和「按原文順序」區域
-            document.getElementById("sortedSection").style.display = "block";
-            document.getElementById("originalSection").style.display = "block";
+            document.getElementById("sortedSection").classList.add('visible');
+            document.getElementById("originalSection").classList.add('visible');
 
             let text = document.getElementById("inputText").value;
             // 文本預處理：替換中文括號、全形分號、&符號
@@ -119,7 +52,7 @@
                 .replace(/（/g, "(")  // 將中文左括號替換為英文左括號
                 .replace(/）/g, ")")  // 將中文右括號替換為英文右括號
                 .replace(/；/g, ";")  // 將全形分號替換為半形分號
-                .replace(/\s?&\s?/g, " and ");  // 將 `&` 兩邊空白處理為 ` and `
+                .replace(/\s?&\s?/g, " and ");  // 將 & 兩邊空白處理為  and 
 
             // 正則表達式模式來匹配引用
             let pattern = /\([^)]+\d{4}[^)]*\)|(?<!\w)[,A-Za-z\s&]+?\(\d{4}\)|(?<!\w)[\w\s&]+?\(\d{4}\)/g;
