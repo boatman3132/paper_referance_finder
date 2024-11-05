@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>引用查找工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        textarea {
+            width: 80%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        #output {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            white-space: pre-line;
+            margin-top: 20px;
+        }
+        .output-columns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .output-column {
+            width: 45%;
+            font-family: monospace;
+        }
+        #charCount {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .highlight-red {
+            background-color: red;
+            color: white;
+            padding: 2px;
+            border-radius: 3px;
+        }
+        .reference-item {
+            display: block;
+            margin: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .subheader {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .reference-container {
+            font-family: monospace;
+            line-height: 1.6;
+        }
+        /* 隱藏初始狀態的區域 */
+        .output-section {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>引用查找工具</h1>
+    <textarea id="inputText" placeholder="請在此輸入您的文章"></textarea>
+    <div id="charCount">字元數：0，字數：0</div>
+    <button onclick="convertBracketsAndFindReferences()">查找論文內文引用</button>
+    <div id="output">
+        <div class="header" id="summaryHeader"></div>
+        <div class="output-columns">
+            <div class="output-column output-section" id="sortedSection">
+                <div class="subheader">按字母順序：<br><br><br><br><br></div>
+                <div id="sortedOutput" class="reference-container"></div>
+            </div>
+            <div class="output-column output-section" id="originalSection">
+                <div class="subheader">按原文順序：</div>
+                <div class="reference-container">
+                    <div>出現次數 &nbsp;引用文獻</div>
+                    <div id="originalOrderOutput"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateCounts() {
+            let text = document.getElementById("inputText").value;
+            let charCount = text.length;
+
+            // 計算字數：中文字符計為1，其他按空白分隔
+            let chineseCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length; // 中文字數
+            let nonChineseWords = text.replace(/[\u4e00-\u9fa5]/g, '').trim().split(/\s+/).filter(word => word.length > 0).length;
+            let wordCount = chineseCount + nonChineseWords;
+
+            document.getElementById("charCount").textContent = `字元數：${charCount}，字數：${wordCount}`;
+        }
+
+        function convertBracketsAndFindReferences() {
+            // 顯示「按字母順序」和「按原文順序」區域
+            document.getElementById("sortedSection").style.display = "block";
+            document.getElementById("originalSection").style.display = "block";
+
+            let text = document.getElementById("inputText").value;
+            // 文本預處理：替換中文括號、全形分號、&符號
+            let convertedText = text
+                .replace(/（/g, "(")  // 將中文左括號替換為英文左括號
+                .replace(/）/g, ")")  // 將中文右括號替換為英文右括號
+                .replace(/；/g, ";")  // 將全形分號替換為半形分號
+                .replace(/\s?&\s?/g, " and ");  // 將 `&` 兩邊空白處理為 ` and `
+
+            // 正則表達式模式來匹配引用
+            let pattern = /\([^)]+\d{4}[^)]*\)|(?<!\w)[,A-Za-z\s&]+?\(\d{4}\)|(?<!\w)[\w\s&]+?\(\d{4}\)/g;
+            let references = convertedText.match(pattern) || [];
+
+            let allReferences = [];
+            let chinesePattern = /[\u4e00-\u9fa5]+/g;
+
+            // 處理每個引用
+            references.forEach(ref => {
+                let refContent = ref.startsWith('(') ? ref.slice(1, -1) : ref; // 移除括號
+                let splitRefs = refContent.split(';'); // 根據分號分割每個引用
+                splitRefs.forEach(subRef => {
+                    let cleanedRef = subRef.replace('e.g.,', '').replace(chinesePattern, '').trim();
+                    if (cleanedRef) {
+                        allReferences.push(cleanedRef);
+                    }
+                });
+            });
+
+            // 格式化輸出結果：替換左括號為 ", "，移除右括號
+            let formattedReferences = allReferences.map(ref => ref.replace(/\(/g, ", ").replace(/\)/g, ""));
+
+            // 去除重複並排序的引用列表（字母順序）
+            let sortedReferences = [...new Set(formattedReferences)].sort().map(ref => `<span class="reference-item">${ref}</span>`);
+
+            // 計算每個引用在原文中的出現次數，並進行標記
+            let referenceCount = {};
+            let highlightErrorCount = 0;
+            let originalOrderReferencesWithCount = formattedReferences.map(ref => {
+                referenceCount[ref] = (referenceCount[ref] || 0) + 1;
+                let occurrenceCount = referenceCount[ref];
+
+                // 檢查是否需要標記
+                let highlight = false;
+                if (occurrenceCount === 1 && ref.includes("et al")) {
+                    highlight = true;
+                } else if (occurrenceCount >= 2 && /.*,.*,/.test(ref)) {
+                    highlight = true;
+                }
+
+                // 格式化顯示文本
+                let displayText = `${occurrenceCount.toString().padStart(3, ' ')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${ref}`;
+                if (highlight) {
+                    highlightErrorCount++;
+                    return `<span class="reference-item highlight-red">${displayText}</span>`;
+                } else {
+                    return `<span class="reference-item">${displayText}</span>`;
+                }
+            });
+
+            // 更新總數與錯誤數
+            document.getElementById("summaryHeader").innerHTML = `總共找到 ${sortedReferences.length} 個項目<br>共計包含 ${highlightErrorCount} 項錯誤`;
+
+            // 顯示結果
+            document.getElementById("sortedOutput").innerHTML = sortedReferences.join('');
+            document.getElementById("originalOrderOutput").innerHTML = originalOrderReferencesWithCount.join('');
+        }
+
+        document.getElementById("inputText").addEventListener("input", updateCounts);
+    </script>
+</body>
+</html>
