@@ -10,7 +10,7 @@
 </head>
 <body>
     <h1>引用查找工具</h1>
-    <textarea id="inputText" placeholder="請在此輸入論文內文"></textarea>
+    <textarea id="inputText" placeholder="請在此輸入論文內文" oninput="updateCounts()"></textarea>
     <div id="charCount">字元數：0，字數：0</div>
     <button onclick="convertBracketsAndFindReferences()">查找引用</button>
     
@@ -31,5 +31,18 @@
     </div>
 
     <script src="scripts.js"></script> 
+    <script>
+        function updateCounts() {
+            let text = document.getElementById("inputText").value;
+            let charCount = text.length;
+            let wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+
+            document.getElementById("charCount").innerText = `字元數：${charCount}，字數：${wordCount}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            updateCounts();
+        });
+    </script>
 </body>
 </html>
